@@ -1,12 +1,9 @@
 package spotify
 
 import (
-	"context"
 	"fmt"
 	"net/url"
 	"time"
-
-	"golang.org/x/oauth2/clientcredentials"
 
 	"github.com/zmb3/spotify"
 )
@@ -18,7 +15,7 @@ type Spotify interface {
 }
 
 type SpotifyClient struct {
-	spotify   spotify.Client
+	spotify   *spotify.Client
 	Playlist  *spotify.FullPlaylist
 	skipVoted bool
 	skipVotes int
@@ -26,41 +23,25 @@ type SpotifyClient struct {
 	skipTimer *time.Timer
 }
 
-type SpotifyClientOpts struct {
-	ClientID     string
-	Secret       string
-	PlaylistName string // one or the other between these 2
-	PlaylistID   string
-}
-
-func NewSpotifyClient(opts SpotifyClientOpts) (Spotify, error) {
-	config := &clientcredentials.Config{
-		ClientID:     opts.ClientID,
-		ClientSecret: opts.Secret,
-		TokenURL:     spotify.TokenURL,
-	}
-	token, err := config.Token(context.Background())
-	if err != nil {
-		return nil, err
-	}
-	client := spotify.Authenticator{}.NewClient(token)
-
+func NewSpotifyClient(client *spotify.Client, name, id string) (Spotify, error) {
 	spotClient := &SpotifyClient{
 		spotify: client,
 	}
 	user, err := client.CurrentUser()
 	if err != nil {
+		fmt.Printf("current user")
 		return nil, err
 	}
-	if opts.PlaylistID == "" {
+	if id == "" {
 		// we assume you want to create a new one - could offer the option to give playlist ID instead
-		playlist, err := client.CreatePlaylistForUser(user.ID, opts.PlaylistName, "echo office playlist", false)
+		playlist, err := client.CreatePlaylistForUser(user.ID, name, "echo office playlist", false)
 		if err != nil {
+			fmt.Printf("create playlist")
 			return nil, err
 		}
 		spotClient.Playlist = playlist
 	} else {
-		playlist, err := client.GetPlaylist(spotify.ID(opts.PlaylistID))
+		playlist, err := client.GetPlaylist(spotify.ID(id))
 		if err != nil {
 			return nil, err
 		}
