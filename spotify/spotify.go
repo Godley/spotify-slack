@@ -2,14 +2,15 @@ package spotify
 
 import (
 	"fmt"
-	"net/url"
+	"strings"
 	"time"
 
 	"github.com/zmb3/spotify"
 )
 
 type Spotify interface {
-	AddToPlaylist(title, artist string) error
+	AddToPlaylist(trackID spotify.ID) (bool, error)
+	FindTrack(title, artist string) ([]*Result, error)
 	Skip()
 	DontSkip()
 }
@@ -51,29 +52,43 @@ func NewSpotifyClient(client *spotify.Client, name, id string) (Spotify, error) 
 	return spotClient, nil
 }
 
-func (s *SpotifyClient) AddToPlaylist(title, artist string) error {
-	searchQuery := title + " - " + artist
+type Result struct {
+	ID     spotify.ID
+	Prompt string
+}
 
-	results, err := s.spotify.Search(url.QueryEscape(searchQuery), spotify.SearchTypeTrack)
+func (s *SpotifyClient) FindTrack(title, artist string) ([]*Result, error) {
+	searchQuery := title + " - " + artist
+	options := make([]*Result, 0)
+	results, err := s.spotify.Search(searchQuery, spotify.SearchTypeTrack)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if results.Tracks != nil {
-		if len(results.Tracks.Tracks) == 1 {
-			// queue it
-			// :( https://github.com/spotify/web-api/issues/462
-			trackID := results.Tracks.Tracks[0].ID
-			if s.isTrackInPlaylist(trackID) {
-				return fmt.Errorf("Track already in playlist")
-			}
-			_, err := s.spotify.AddTracksToPlaylist(spotify.ID(s.Playlist.ID))
-			if err != nil {
-				return err
-			}
-		}
 		// give options
+		for idx, track := range results.Tracks.Tracks {
+			artistNames := make([]string, 0)
+			for _, artist := range track.Artists {
+				artistNames = append(artistNames, artist.Name)
+			}
+			options = append(options, &Result{
+				ID:     track.ID,
+				Prompt: fmt.Sprintf("Option %d: %s by %s", idx, track.Name, strings.Join(artistNames, ",")),
+			})
+		}
 	}
-	return nil
+	return options, nil
+}
+
+func (s *SpotifyClient) AddToPlaylist(trackID spotify.ID) (bool, error) {
+	if s.isTrackInPlaylist(trackID) {
+		return false, nil
+	}
+	_, err := s.spotify.AddTracksToPlaylist(s.Playlist.ID, trackID)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (s *SpotifyClient) isTrackInPlaylist(trackID spotify.ID) bool {

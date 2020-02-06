@@ -47,10 +47,28 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("You are logged in as:", user.ID)
-	_, err = spot_client.NewSpotifyClient(client, "hackday", "")
+	echoClient, err := spot_client.NewSpotifyClient(client, "hackday", "")
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
+	options, err := echoClient.FindTrack("The Day We Fell in Love", "The Ovations")
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	if len(options) == 1 {
+		_, err = echoClient.AddToPlaylist(options[0].ID)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+	}
+	fmt.Println("Options:")
+	for _, option := range options {
+		fmt.Println(option.Prompt)
+	}
+
 }
 
 func completeAuth(w http.ResponseWriter, r *http.Request) {
