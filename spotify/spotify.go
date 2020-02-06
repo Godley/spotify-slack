@@ -27,16 +27,16 @@ type SpotifyClient struct {
 }
 
 type SpotifyClientOpts struct {
-	clientID     string
-	secret       string
-	playlistName string // one or the other between these 2
-	playlistID   string
+	ClientID     string
+	Secret       string
+	PlaylistName string // one or the other between these 2
+	PlaylistID   string
 }
 
 func NewSpotifyClient(opts SpotifyClientOpts) (Spotify, error) {
 	config := &clientcredentials.Config{
-		ClientID:     opts.clientID,
-		ClientSecret: opts.secret,
+		ClientID:     opts.ClientID,
+		ClientSecret: opts.Secret,
 		TokenURL:     spotify.TokenURL,
 	}
 	token, err := config.Token(context.Background())
@@ -52,15 +52,15 @@ func NewSpotifyClient(opts SpotifyClientOpts) (Spotify, error) {
 	if err != nil {
 		return nil, err
 	}
-	if opts.playlistID == "" {
+	if opts.PlaylistID == "" {
 		// we assume you want to create a new one - could offer the option to give playlist ID instead
-		playlist, err := client.CreatePlaylistForUser(user.ID, opts.playlistName, "echo office playlist", false)
+		playlist, err := client.CreatePlaylistForUser(user.ID, opts.PlaylistName, "echo office playlist", false)
 		if err != nil {
 			return nil, err
 		}
 		spotClient.Playlist = playlist
 	} else {
-		playlist, err := client.GetPlaylist(spotify.ID(opts.playlistID))
+		playlist, err := client.GetPlaylist(spotify.ID(opts.PlaylistID))
 		if err != nil {
 			return nil, err
 		}
