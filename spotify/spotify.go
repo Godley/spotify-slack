@@ -24,30 +24,15 @@ type SpotifyClient struct {
 	skipTimer *time.Timer
 }
 
-func NewSpotifyClient(client *spotify.Client, name, id string) (Spotify, error) {
+func NewSpotifyClient(client *spotify.Client, playlistID string) (Spotify, error) {
 	spotClient := &SpotifyClient{
 		spotify: client,
 	}
-	user, err := client.CurrentUser()
+	playlist, err := client.GetPlaylist(spotify.ID(playlistID))
 	if err != nil {
-		fmt.Printf("current user")
 		return nil, err
 	}
-	if id == "" {
-		// we assume you want to create a new one - could offer the option to give playlist ID instead
-		playlist, err := client.CreatePlaylistForUser(user.ID, name, "echo office playlist", false)
-		if err != nil {
-			fmt.Printf("create playlist")
-			return nil, err
-		}
-		spotClient.Playlist = playlist
-	} else {
-		playlist, err := client.GetPlaylist(spotify.ID(id))
-		if err != nil {
-			return nil, err
-		}
-		spotClient.Playlist = playlist
-	}
+	spotClient.Playlist = playlist
 
 	return spotClient, nil
 }
