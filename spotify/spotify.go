@@ -49,6 +49,12 @@ func (s *SpotifyClient) WhatsPlaying() Result {
 	}
 
 	artistNames := []string{}
+	if playing.Item == nil {
+		return Result{
+			ID:     "",
+			Prompt: "Nothing is playing",
+		}
+	}
 	for _, artist := range playing.Item.Artists {
 		artistNames = append(artistNames, artist.Name)
 	}
