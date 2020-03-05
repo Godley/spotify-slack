@@ -79,36 +79,40 @@ func (s *SpotifyClient) FindTrack(query string) (Result, error) {
 }
 
 func (s *SpotifyClient) AddToPlaylist(trackID spotify.ID) (bool, error) {
-	if s.isTrackInPlaylist(trackID) {
+	trackInPlaylist, err := s.isTrackInPlaylist(trackID)
+	if err != nil {
+		return false, err
+	}
+	if trackInPlaylist {
 		return false, nil
 	}
-	_, err := s.spotify.AddTracksToPlaylist(s.Playlist.ID, trackID)
+	_, err = s.spotify.AddTracksToPlaylist(s.Playlist.ID, trackID)
 	if err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (s *SpotifyClient) isTrackInPlaylist(trackID spotify.ID) bool {
+func (s *SpotifyClient) isTrackInPlaylist(trackID spotify.ID) (bool, error) {
 	inPage := false
 	tracks, err := s.spotify.GetPlaylistTracks(s.Playlist.ID)
 	if err != nil {
-		return true
+		return true, err
 	}
 	for true {
 		inPage = isTrackInPage(trackID, *tracks)
 		if inPage {
-			return true
+			return false, nil
 		}
 		err := s.spotify.NextPage(tracks)
 		if err != nil && err == spotify.ErrNoMorePages {
-			return false
+			return false, nil
 		} else if err != nil {
 			// TODO log stuff here
-			return false
+			return false, err
 		}
 	}
-	return false
+	return false, nil
 }
 
 func isTrackInPage(trackID spotify.ID, page spotify.PlaylistTrackPage) bool {
