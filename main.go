@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/godley/spotify-slack/slack"
 	spot_client "github.com/godley/spotify-slack/spotify"
@@ -50,7 +51,7 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("You are logged in as:", user.ID)
-	echoClient, err := spot_client.NewSpotifyClient(client, "hackday", "")
+	echoClient, err := spot_client.NewSpotifyClient(client, os.Getenv("SPOTIFY_PLAYLIST_ID"))
 	if err != nil {
 		log.Fatal(err)
 		return
