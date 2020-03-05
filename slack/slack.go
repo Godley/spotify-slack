@@ -87,15 +87,16 @@ func (handler *SlackHandler) processSpotify(text string, channelID string) (stri
 			return "", err
 		}
 		if !added {
-			return "Track already in playlist", nil
+			return fmt.Sprintf(":guitar: %s already in playlist", firstTrackFound.Prompt), nil
 		}
-		return fmt.Sprintf("Added %s to playlist", firstTrackFound.Prompt), nil
+		handler.SlackWriter.Write(fmt.Sprintf(":musical_keyboard: Added %s to playlist", firstTrackFound.Prompt))
+		return "", nil
 	case "playing":
 		playingTrack := handler.Spotify.WhatsPlaying()
 		if playingTrack.ID == "" {
 			handler.SlackWriter.Write(":upside_down_face: nothing is currently playing in the office")
 		} else {
-			handler.SlackWriter.Write(fmt.Sprintf(":cd::musical_note: Now playing %s", playingTrack.Prompt))
+			handler.SlackWriter.Write(fmt.Sprintf(":cd::musical_note: _Now playing:_ %s", playingTrack.Prompt))
 		}
 		return "", nil
 	case "skip":
