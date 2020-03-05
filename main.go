@@ -11,8 +11,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"strings"
 
 	"github.com/godley/spotify-slack/slack"
 	spot_client "github.com/godley/spotify-slack/spotify"
@@ -37,7 +35,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	fmt.Printf(strings.Join(os.Environ(), "\n"))
 	http.HandleFunc("/callback", completeAuth)
 	go http.ListenAndServe(":8081", nil)
 
