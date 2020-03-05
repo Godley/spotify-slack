@@ -38,7 +38,7 @@ func (handler *SlackHandler) ServeHTTP(resp http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	if !s.ValidateToken(os.Getenv("SLACK_TOKEN")) {
+	if !s.ValidateToken(os.Getenv("SLACK_VERIFICATION_TOKEN")) {
 		resp.WriteHeader(http.StatusUnauthorized)
 		return
 	}
