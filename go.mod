@@ -4,6 +4,9 @@ go 1.13
 
 require (
 	github.com/bitly/go-simplejson v0.5.0 // indirect
+	github.com/gorilla/mux v1.7.3
+	github.com/joho/godotenv v1.3.0
+	github.com/nlopes/slack v0.6.0
 	github.com/parnurzeal/gorequest v0.2.16 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rapito/go-spotify v0.0.0-20171031112644-2944f751da9c
