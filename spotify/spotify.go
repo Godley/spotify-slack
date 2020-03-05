@@ -3,7 +3,6 @@ package spotify
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/zmb3/spotify"
 )
@@ -12,17 +11,12 @@ type Spotify interface {
 	AddToPlaylist(trackID spotify.ID) (bool, error)
 	FindTrack(query string) (Result, error)
 	WhatsPlaying() Result
-	Skip()
-	DontSkip()
+	Skip() error
 }
 
 type SpotifyClient struct {
-	spotify   *spotify.Client
-	Playlist  *spotify.FullPlaylist
-	skipVoted bool
-	skipVotes int
-	keepVotes int
-	skipTimer *time.Timer
+	spotify  *spotify.Client
+	Playlist *spotify.FullPlaylist
 }
 
 func NewSpotifyClient(client *spotify.Client, playlistID string) (Spotify, error) {
@@ -124,21 +118,6 @@ func isTrackInPage(trackID spotify.ID, page spotify.PlaylistTrackPage) bool {
 	return false
 }
 
-func (s *SpotifyClient) Skip() {
-	if !s.skipVoted {
-		s.skipTimer = time.NewTimer(time.Second * 10)
-		s.skipVoted = true
-	}
-	s.skipVotes += 1
-}
-
-func (s *SpotifyClient) DontSkip() {
-	s.keepVotes += 1
-}
-
-func (s *SpotifyClient) TimerExpired() error {
-	if s.skipVotes > s.keepVotes {
-		return s.spotify.Next()
-	}
-	return fmt.Errorf("Not enough skip votes!")
+func (s *SpotifyClient) Skip() error {
+	return s.spotify.Next()
 }
