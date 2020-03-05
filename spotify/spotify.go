@@ -88,12 +88,16 @@ func (s *SpotifyClient) AddToPlaylist(trackID spotify.ID) (bool, error) {
 
 func (s *SpotifyClient) isTrackInPlaylist(trackID spotify.ID) bool {
 	inPage := false
+	tracks, err := s.spotify.GetPlaylistTracks(s.Playlist.ID)
+	if err != nil {
+		return true
+	}
 	for true {
-		inPage = isTrackInPage(trackID, s.Playlist.Tracks)
+		inPage = isTrackInPage(trackID, *tracks)
 		if inPage {
 			return true
 		}
-		err := s.spotify.NextPage(s.Playlist.Tracks)
+		err := s.spotify.NextPage(tracks)
 		if err != nil && err == spotify.ErrNoMorePages {
 			return false
 		} else if err != nil {
