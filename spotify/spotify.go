@@ -10,7 +10,7 @@ import (
 
 type Spotify interface {
 	AddToPlaylist(trackID spotify.ID) (bool, error)
-	FindTrack(title, artist string) ([]*Result, error)
+	FindTrack(query string) (Result, error)
 	Skip()
 	DontSkip()
 }
@@ -57,27 +57,22 @@ type Result struct {
 	Prompt string
 }
 
-func (s *SpotifyClient) FindTrack(title, artist string) ([]*Result, error) {
-	searchQuery := title + " - " + artist
-	options := make([]*Result, 0)
-	results, err := s.spotify.Search(searchQuery, spotify.SearchTypeTrack)
+func (s *SpotifyClient) FindTrack(query string) (Result, error) {
+	results, err := s.spotify.Search(query, spotify.SearchTypeTrack)
 	if err != nil {
-		return nil, err
+		return Result{}, err
 	}
 	if results.Tracks != nil {
-		// give options
-		for idx, track := range results.Tracks.Tracks {
-			artistNames := make([]string, 0)
-			for _, artist := range track.Artists {
-				artistNames = append(artistNames, artist.Name)
-			}
-			options = append(options, &Result{
-				ID:     track.ID,
-				Prompt: fmt.Sprintf("Option %d: %s by %s", idx, track.Name, strings.Join(artistNames, ",")),
-			})
+		artistNames := make([]string, 0)
+		for _, artist := range results.Tracks.Tracks[0].Artists {
+			artistNames = append(artistNames, artist.Name)
 		}
+		return Result{
+			ID:     results.Tracks.Tracks[0].ID,
+			Prompt: fmt.Sprintf("%s by %s", results.Tracks.Tracks[0].Name, strings.Join(artistNames, ",")),
+		}, nil
 	}
-	return options, nil
+	return Result{}, fmt.Errorf("No results")
 }
 
 func (s *SpotifyClient) AddToPlaylist(trackID spotify.ID) (bool, error) {
