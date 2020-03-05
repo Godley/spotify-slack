@@ -97,7 +97,7 @@ func (s *SpotifyClient) isTrackInPlaylist(trackID spotify.ID) (bool, error) {
 	if err != nil {
 		return true, err
 	}
-	for true {
+	for {
 		inPage = isTrackInPage(trackID, *tracks)
 		if inPage {
 			return false, nil
@@ -110,7 +110,6 @@ func (s *SpotifyClient) isTrackInPlaylist(trackID spotify.ID) (bool, error) {
 			return false, err
 		}
 	}
-	return false, nil
 }
 
 func isTrackInPage(trackID spotify.ID, page spotify.PlaylistTrackPage) bool {
