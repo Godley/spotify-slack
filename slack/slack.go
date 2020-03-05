@@ -15,6 +15,7 @@ import (
 type SlackHandler struct {
 	Spotify     spotify.Spotify
 	SlackWriter MessageWriter
+	channelID   string
 	skipVoted   bool
 	skipVotes   int
 	keepVotes   int
@@ -35,6 +36,7 @@ func NewSlackHandler(spotify spotify.Spotify, token, channelID string) http.Hand
 	handler := &SlackHandler{
 		Spotify:     spotify,
 		SlackWriter: NewPoster(token, channelID),
+		channelID:   channelID,
 	}
 	go handler.SlackWriter.StartPoster()
 	return handler
@@ -49,6 +51,9 @@ func (handler *SlackHandler) ServeHTTP(resp http.ResponseWriter, req *http.Reque
 
 	if !s.ValidateToken(os.Getenv("SLACK_VERIFICATION_TOKEN")) {
 		resp.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	if s.ChannelID != handler.channelID {
 		return
 	}
 	switch s.Command {
