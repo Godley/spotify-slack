@@ -77,6 +77,9 @@ func (handler *SlackHandler) processSpotify(text string) (string, error) {
 			return "Track already in playlist", nil
 		}
 		return fmt.Sprintf("Added %s to playlist", firstTrackFound.Prompt), nil
+	case "playing":
+		playingTrack := handler.Spotify.WhatsPlaying()
+		return fmt.Sprintf(":cd::musical_note: Now playing %s", playingTrack.Prompt), nil
 	}
 	return "", nil
 }

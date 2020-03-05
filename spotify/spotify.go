@@ -11,6 +11,7 @@ import (
 type Spotify interface {
 	AddToPlaylist(trackID spotify.ID) (bool, error)
 	FindTrack(query string) (Result, error)
+	WhatsPlaying() Result
 	Skip()
 	DontSkip()
 }
@@ -40,6 +41,23 @@ func NewSpotifyClient(client *spotify.Client, playlistID string) (Spotify, error
 type Result struct {
 	ID     spotify.ID
 	Prompt string
+}
+
+var defaultTrackId spotify.ID = "4uLU6hMCjMI75M1A2tKUQC"
+
+func (s *SpotifyClient) WhatsPlaying() Result {
+	playing, err := s.spotify.PlayerCurrentlyPlaying()
+	if err != nil {
+		return Result{
+			ID:     defaultTrackId,
+			Prompt: "I don't know mate",
+		}
+	}
+
+	return Result{
+		ID:     playing.Item.ID,
+		Prompt: playing.Item.String(),
+	}
 }
 
 func (s *SpotifyClient) FindTrack(query string) (Result, error) {
