@@ -48,9 +48,13 @@ func (s *SpotifyClient) WhatsPlaying() Result {
 		}
 	}
 
+	artistNames := []string{}
+	for _, artist := range playing.Item.Artists {
+		artistNames = append(artistNames, artist.Name)
+	}
 	return Result{
 		ID:     playing.Item.ID,
-		Prompt: playing.Item.String(),
+		Prompt: fmt.Sprintf("%s by %s", playing.Item.Name, strings.Join(artistNames, ",")),
 	}
 }
 
