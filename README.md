@@ -1,11 +1,11 @@
 # spotify-slack
 This golang app provides the ability to:
 - Login using a spotify account
-- In slack, using the `/spotify` command:
-    - Add new tracks to the echo playlist
+- In slack, using the `/spotify` command in #shoreditch-tunes:
+    - Add new tracks to the echo playlist: this will post to `#shoreditch-tunes`
     - Vote to skip the currently playing song, which starts a 10 second timer, after which if there are more votes to skip than keep the song will be skipped.
     - Vote to keep the currently playing song on
-    - Check what's playing s
+    - Check what's playing. This also posts to #shoreditch-tunes
 ## Running this
 1. Get yourself a spotify client ID and token. Go to https://developer.spotify.com, login with your spotify account and then head to dashboard, and click "create client ID"
 1. Set up a slackbot in [your apps](https://api.slack.com/apps), head to "oauth & permissions" and add the chat:write scope and the commands scope
