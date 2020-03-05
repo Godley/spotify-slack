@@ -9,7 +9,7 @@ import (
 
 	"github.com/godley/spotify-slack/spotify"
 
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 const (
@@ -57,7 +57,11 @@ func (s *SlackListener) ListenAndResponse() {
 
 	// Handle slack events
 	for msg := range rtm.IncomingEvents {
-		fmt.Printf("%#v", msg)
+		fmt.Printf("type: %s, %#v", msg.Type, msg.Data)
+		// switch msg.Type {
+		// case "connection_error":
+		// 	fmt.Printf("connection error, details: %s", (*slack.ConnectionErrorEvent)msg.Data.ErrorObj)
+		// }
 		switch ev := msg.Data.(type) {
 		case *slack.MessageEvent:
 			if err := s.handleMessageEvent(ev); err != nil {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/godley/spotify-slack/spotify"
 	"github.com/gorilla/mux"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 type SlackHandler struct {
