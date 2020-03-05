@@ -13,27 +13,33 @@ import (
 )
 
 type SlackHandler struct {
-	Spotify   spotify.Spotify
-	skipVoted bool
-	skipVotes int
-	keepVotes int
-	skipTimer *time.Timer
+	Spotify     spotify.Spotify
+	SlackWriter MessageWriter
+	channelID   string
+	skipVoted   bool
+	skipVotes   int
+	keepVotes   int
+	skipTimer   *time.Timer
 }
 
-func Start(client spotify.Spotify) {
+func Start(client spotify.Spotify, token, channelID string) {
 
 	router := mux.NewRouter()
-	router.Handle("/", NewSlackHandler(client))
+	router.Handle("/", NewSlackHandler(client, token, channelID))
 
 	fmt.Println("[INFO] Server listening")
 	http.Handle("/", router)
 	http.ListenAndServe(":8080", nil)
 }
 
-func NewSlackHandler(spotify spotify.Spotify) http.Handler {
-	return &SlackHandler{
-		Spotify: spotify,
+func NewSlackHandler(spotify spotify.Spotify, token, channelID string) http.Handler {
+	handler := &SlackHandler{
+		Spotify:     spotify,
+		SlackWriter: NewPoster(token, channelID),
+		channelID:   channelID,
 	}
+	go handler.SlackWriter.StartPoster()
+	return handler
 }
 
 func (handler *SlackHandler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
@@ -47,7 +53,9 @@ func (handler *SlackHandler) ServeHTTP(resp http.ResponseWriter, req *http.Reque
 		resp.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-
+	if s.ChannelID != handler.channelID {
+		return
+	}
 	switch s.Command {
 	case "/spotify":
 		response, err := handler.processSpotify(s.Text, s.ChannelID)
@@ -84,7 +92,12 @@ func (handler *SlackHandler) processSpotify(text string, channelID string) (stri
 		return fmt.Sprintf("Added %s to playlist", firstTrackFound.Prompt), nil
 	case "playing":
 		playingTrack := handler.Spotify.WhatsPlaying()
-		return fmt.Sprintf(":cd::musical_note: Now playing %s", playingTrack.Prompt), nil
+		if playingTrack.ID == "" {
+			handler.SlackWriter.Write(":upside_down_face: nothing is currently playing in the office")
+		} else {
+			handler.SlackWriter.Write(fmt.Sprintf(":cd::musical_note: Now playing %s", playingTrack.Prompt))
+		}
+		return "", nil
 	case "skip":
 		if !handler.skipVoted {
 			skipTimer := time.NewTimer(time.Second * 10)

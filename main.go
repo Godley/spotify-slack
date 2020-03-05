@@ -56,7 +56,7 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	slack.Start(echoClient)
+	slack.Start(echoClient, os.Getenv("SLACK_BOT_TOKEN"), os.Getenv("SLACK_CHANNEL_ID"))
 }
 
 func completeAuth(w http.ResponseWriter, r *http.Request) {
