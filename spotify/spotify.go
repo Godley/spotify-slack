@@ -3,7 +3,6 @@ package spotify
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/zmb3/spotify"
 )
@@ -12,17 +11,12 @@ type Spotify interface {
 	AddToPlaylist(trackID spotify.ID) (bool, error)
 	FindTrack(query string) (Result, error)
 	WhatsPlaying() Result
-	Skip()
-	DontSkip()
+	Skip() error
 }
 
 type SpotifyClient struct {
-	spotify   *spotify.Client
-	Playlist  *spotify.FullPlaylist
-	skipVoted bool
-	skipVotes int
-	keepVotes int
-	skipTimer *time.Timer
+	spotify  *spotify.Client
+	Playlist *spotify.FullPlaylist
 }
 
 func NewSpotifyClient(client *spotify.Client, playlistID string) (Spotify, error) {
@@ -79,36 +73,40 @@ func (s *SpotifyClient) FindTrack(query string) (Result, error) {
 }
 
 func (s *SpotifyClient) AddToPlaylist(trackID spotify.ID) (bool, error) {
-	if s.isTrackInPlaylist(trackID) {
+	trackInPlaylist, err := s.isTrackInPlaylist(trackID)
+	if err != nil {
+		return false, err
+	}
+	if trackInPlaylist {
 		return false, nil
 	}
-	_, err := s.spotify.AddTracksToPlaylist(s.Playlist.ID, trackID)
+	_, err = s.spotify.AddTracksToPlaylist(s.Playlist.ID, trackID)
 	if err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
-func (s *SpotifyClient) isTrackInPlaylist(trackID spotify.ID) bool {
+func (s *SpotifyClient) isTrackInPlaylist(trackID spotify.ID) (bool, error) {
 	inPage := false
 	tracks, err := s.spotify.GetPlaylistTracks(s.Playlist.ID)
 	if err != nil {
-		return true
+		return true, err
 	}
 	for true {
 		inPage = isTrackInPage(trackID, *tracks)
 		if inPage {
-			return true
+			return false, nil
 		}
 		err := s.spotify.NextPage(tracks)
 		if err != nil && err == spotify.ErrNoMorePages {
-			return false
+			return false, nil
 		} else if err != nil {
 			// TODO log stuff here
-			return false
+			return false, err
 		}
 	}
-	return false
+	return false, nil
 }
 
 func isTrackInPage(trackID spotify.ID, page spotify.PlaylistTrackPage) bool {
@@ -120,21 +118,6 @@ func isTrackInPage(trackID spotify.ID, page spotify.PlaylistTrackPage) bool {
 	return false
 }
 
-func (s *SpotifyClient) Skip() {
-	if !s.skipVoted {
-		s.skipTimer = time.NewTimer(time.Second * 10)
-		s.skipVoted = true
-	}
-	s.skipVotes += 1
-}
-
-func (s *SpotifyClient) DontSkip() {
-	s.keepVotes += 1
-}
-
-func (s *SpotifyClient) TimerExpired() error {
-	if s.skipVotes > s.keepVotes {
-		return s.spotify.Next()
-	}
-	return fmt.Errorf("Not enough skip votes!")
+func (s *SpotifyClient) Skip() error {
+	return s.spotify.Next()
 }
