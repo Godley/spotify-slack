@@ -94,7 +94,7 @@ func (handler *SlackHandler) processSpotify(text string, channelID string) (stri
 	case "playing":
 		playingTrack := handler.Spotify.WhatsPlaying()
 		if playingTrack.ID == "" {
-			handler.SlackWriter.Write(":upside_down_face: nothing is currently playing in the office")
+			return ":upside_down_face: nothing is currently playing in the office", nil
 		} else {
 			handler.SlackWriter.Write(fmt.Sprintf(":cd::musical_note: _Now playing:_ %s", playingTrack.Prompt))
 		}
@@ -105,17 +105,20 @@ func (handler *SlackHandler) processSpotify(text string, channelID string) (stri
 			handler.skipVotes = 1
 			handler.skipVoted = true
 			go handler.timerExpired(skipTimer.C, channelID)
-			return fmt.Sprintf("Voted to skip this track, if no one else votes to keep it in 10 seconds this song will be skipped :arrow_right:"), nil
+			handler.SlackWriter.Write("Voted to skip this track, if no one else votes to keep it in 10 seconds this song will be skipped :arrow_right:")
+			return "", nil
 		} else {
 			handler.skipVotes += 1
-			return fmt.Sprintf("Voted to skip track. Current votes to skip: %d, votes to keep: %d", handler.skipVotes, handler.keepVotes), nil
+			handler.SlackWriter.Write(fmt.Sprintf("Voted to skip track. Current votes to skip: %d, votes to keep: %d", handler.skipVotes, handler.keepVotes))
+			return "", nil
 		}
 	case "keep":
 		if !handler.skipVoted {
 			return "there is no skip vote in progress", nil
 		}
 		handler.keepVotes += 1
-		return fmt.Sprintf("Voted to keep track. Current votes to skip: %d, votes to keep: %d", handler.skipVotes, handler.keepVotes), nil
+		handler.SlackWriter.Write(fmt.Sprintf("Voted to keep track. Current votes to skip: %d, votes to keep: %d", handler.skipVotes, handler.keepVotes))
+		return "", nil
 	}
 	return "", nil
 }
@@ -127,8 +130,11 @@ func (handler *SlackHandler) timerExpired(channel <-chan time.Time, channelID st
 		handler.skipVoted = false
 		handler.skipVotes = 0
 		handler.keepVotes = 0
+
 		if err != nil {
-			fmt.Printf("Failed skipping track: %s\n", err)
+			handler.SlackWriter.Write(fmt.Sprintf(":disappointed: failed to skip track: %s", err))
+			return
 		}
+		handler.SlackWriter.Write(":fast_forward: skipped this song!")
 	}
 }
