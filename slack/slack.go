@@ -8,7 +8,7 @@ import (
 
 	"github.com/godley/spotify-slack/spotify"
 	"github.com/gorilla/mux"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 type SlackHandler struct {
@@ -65,27 +65,18 @@ func (handler *SlackHandler) processSpotify(text string) (string, error) {
 	}
 	switch args[0] {
 	case "add":
-		options, err := handler.Spotify.FindTrack(args[1], strings.Join(args[2:len(args)-1], " "))
+		firstTrackFound, err := handler.Spotify.FindTrack(strings.Join(args[1:len(args)-1], " "))
 		if err != nil {
 			return "", err
 		}
-		if len(options) == 1 {
-			added, err := handler.Spotify.AddToPlaylist(options[0].ID)
-			if err != nil {
-				return "", err
-			}
-			if !added {
-				return "Track already in playlist", nil
-			}
-			return "Added to playlist", nil
-		} else {
-			response := "Multiple tracks found with title: %s and artist: %s. Select one:\n%s"
-			optionsText := ""
-			for _, option := range options {
-				optionsText += fmt.Sprintf("%s\n", option.Prompt)
-			}
-			return fmt.Sprintf(response, args[1], args[2], optionsText), nil
+		added, err := handler.Spotify.AddToPlaylist(firstTrackFound.ID)
+		if err != nil {
+			return "", err
 		}
+		if !added {
+			return "Track already in playlist", nil
+		}
+		return fmt.Sprintf("Added %s to playlist", firstTrackFound.Prompt), nil
 	}
 	return "", nil
 }

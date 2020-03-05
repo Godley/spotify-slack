@@ -2,6 +2,7 @@ cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/bitly/go-simplejson v0.5.0 h1:6IH+V8/tVMab511d5bn4M7EwGXZf9Hj6i2xSwkNEM+Y=
 github.com/bitly/go-simplejson v0.5.0/go.mod h1:cXHtHw4XUPsvGaxgjIAn8PhEWG9NfngEKAMDJEczWVA=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/go-test/deep v1.0.4/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/gorilla/mux v1.7.3 h1:gnP5JzjVOuiZD07fKKToCAOjS0yOpj/qPETTXCCS6hw=
 github.com/gorilla/mux v1.7.3/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
@@ -19,6 +20,8 @@ github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rapito/go-spotify v0.0.0-20171031112644-2944f751da9c h1:NlEbbMIlTrqiv0+4T2j25x27XXpxr9hNz1FSyid0k4s=
 github.com/rapito/go-spotify v0.0.0-20171031112644-2944f751da9c/go.mod h1:9j9R1hjbedKm7hqBF29EeVs25IJ8wJpBjZXvKcfA+DI=
+github.com/slack-go/slack v0.6.2 h1:MAnjpRC+m082cFXT/BOYZOrlrZXJZIORfLqw9IwK/hI=
+github.com/slack-go/slack v0.6.2/go.mod h1:ZUNi+O1Pwr2ch2UOp2AfF+s7QYQgwht2Cd1UTeIYw9A=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/zmb3/spotify v0.0.0-20200112163645-71a4c67d18db h1:s0clE5BJsmzuIJpISDHANqtTB4u+sIlAbm+ikLDbWzg=
 github.com/zmb3/spotify v0.0.0-20200112163645-71a4c67d18db/go.mod h1:pHsWAmY9PfX7i/uwPZkmWrebc8JbK8FppKbvyevwzSU=
