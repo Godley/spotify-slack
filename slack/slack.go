@@ -87,11 +87,11 @@ func (handler *SlackHandler) processSpotify(text string, channelID string) (stri
 		return fmt.Sprintf(":cd::musical_note: Now playing %s", playingTrack.Prompt), nil
 	case "skip":
 		if !handler.skipVoted {
-			skipTimer := time.NewTimer(time.Second * 30)
+			skipTimer := time.NewTimer(time.Second * 10)
 			handler.skipVotes = 1
 			handler.skipVoted = true
 			go handler.timerExpired(skipTimer.C, channelID)
-			return fmt.Sprintf("Voted to skip this track, if no one else votes to keep it in 30 seconds this song will be skipped :arrow_right:"), nil
+			return fmt.Sprintf("Voted to skip this track, if no one else votes to keep it in 10 seconds this song will be skipped :arrow_right:"), nil
 		} else {
 			handler.skipVotes += 1
 			return fmt.Sprintf("Voted to skip track. Current votes to skip: %d, votes to keep: %d", handler.skipVotes, handler.keepVotes), nil
