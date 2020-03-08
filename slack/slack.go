@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/godley/spotify-slack/spotify"
+	"github.com/echo-health/spotify-slack/spotify"
 	"github.com/gorilla/mux"
 	"github.com/slack-go/slack"
 )
