@@ -2,4 +2,4 @@ FROM golang:latest
 
 ADD main.go /main.go
 ADD .env /.env
-CMD ["SPOTIFY_SECRET=$SPOTIFY_SECRET", "SPOTIFY_ID=$SPOTIFY_ID", "SLACK_VERIFICATION_TOKEN=$SLACK_VERIFICATION_TOKEN", "SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN", "go", "run", "/main.go"]
+CMD ["go", "run", "/main.go"]
