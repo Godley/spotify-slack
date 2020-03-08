@@ -1,4 +1,4 @@
-module github.com/godley/spotify-slack
+module github.com/echo-health/spotify-slack
 
 go 1.13
 
