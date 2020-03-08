@@ -13,8 +13,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/godley/spotify-slack/slack"
-	spot_client "github.com/godley/spotify-slack/spotify"
+	"github.com/echo-health/spotify-slack/slack"
+	spot_client "github.com/echo-health/spotify-slack/spotify"
 	"github.com/joho/godotenv"
 	"github.com/zmb3/spotify"
 )
