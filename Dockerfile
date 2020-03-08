@@ -6,4 +6,5 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -mod vendor 
 
 FROM scratch
 USER nobody
+COPY --chown=0:0 --from=build /support/build/spotify-slack /go/bin/spotify-slack
 ENTRYPOINT ["/go/bin/spotify-slack"]
